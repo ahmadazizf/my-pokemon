@@ -48,11 +48,6 @@ const ComparePage = () => {
 
    const handleModal = () => setOpenModal(!openModal);
 
-   const handleMore = () => {
-      if (pokemonList.length <= totalData) {
-         dispatch(getPokemon({ limit: 25, offset: pokemonList.length }));
-      }
-   };
    const handleChoose = () => {
       if (pokemon?.pokemonA?.name && pokemon?.pokemonB?.name) {
          setPokemon({
@@ -86,7 +81,7 @@ const ComparePage = () => {
    return (
       <div>
          <Button className="my-3 animate-fade-down" variant="gradient" onClick={handleChoose}>
-            Choose Pokemon
+            {pokemon.pokemonA && !pokemon.pokemonB ? "Choose Pokemon B" : pokemon.pokemonB ? "Choose Pokemon" : "Choose Pokemon A"}
          </Button>
          <div className="shadow-white shadow-md mt-2 rounded-md">
             <div
