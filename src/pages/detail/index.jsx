@@ -26,7 +26,7 @@ const DetailPokemon = () => {
             <div className="animate-fade-down flex justify-between gap-24 p-5  rounded-t-md shadow-md -mb-5 " key={filterPokemon?.id} style={{ backgroundColor: Colors[filterPokemon.type] }}>
                <div>
                   <h2 className="font-bold text-lg text-left">{filterPokemon?.name}</h2>
-                  <div className="p-1 text-left md:flex gap-10">
+                  <div className="p-1 text-left md:flex md:text-base text-xs gap-10">
                      <p>Height: {filterPokemon?.information?.height}</p>
                      <p>Weight: {filterPokemon?.information?.weight}</p>
                      <p>Types: {filterPokemon?.information?.types}</p>

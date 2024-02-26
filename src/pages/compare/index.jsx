@@ -1,10 +1,9 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Progress, Typography } from "@material-tailwind/react";
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import ListSection from "../list/component/listSection";
 import Card from "../list/component/card";
 import { useDispatch, useSelector } from "react-redux";
 import { getPokemon, selectAllPokemon, selectStatus } from "../../store/pokemon";
-import { Colors } from "../../util/color";
 
 const ComparePage = () => {
    const dispatch = useDispatch();
@@ -16,6 +15,36 @@ const ComparePage = () => {
    const pokemonList = useSelector(selectAllPokemon);
    const totalData = useSelector((state) => state.pokemon.totalData);
    const status = useSelector(selectStatus);
+
+   const containerRef = useRef(null);
+
+   useEffect(() => {
+      if (pokemonList.length === 0) dispatch(getPokemon({ limit: 25, offset: 0 }));
+   }, [dispatch]);
+
+   useEffect(() => {
+      const observer = new IntersectionObserver(
+         (entries) => {
+            const firstEntry = entries[0];
+            if (firstEntry.isIntersecting && status !== "loading") {
+               dispatch(getPokemon({ limit: 25, offset: pokemonList.length }));
+            }
+         },
+         {
+            threshold: 0.1, // Trigger when 10% of the target is visible
+         }
+      );
+
+      if (containerRef.current) {
+         observer.observe(containerRef.current);
+      }
+
+      return () => {
+         if (containerRef.current) {
+            observer.unobserve(containerRef.current);
+         }
+      };
+   }, [dispatch, status, openModal]);
 
    const handleModal = () => setOpenModal(!openModal);
 
@@ -67,7 +96,7 @@ const ComparePage = () => {
             >
                <div>
                   <h2 className="font-bold text-lg text-left">{pokemon?.pokemonA?.name.charAt(0).toUpperCase() + pokemon?.pokemonA?.name.slice(1) ?? ""}</h2>
-                  <div className="p-1 text-left md:flex gap-10">
+                  <div className="p-1 text-left md:flex md:text-base text-xs gap-10">
                      <p>Height: {pokemon?.pokemonA?.information?.height}</p>
                      <p>Weight: {pokemon?.pokemonA?.information?.weight}</p>
                      <p>Types: {pokemon?.pokemonA?.information?.types}</p>
@@ -85,7 +114,7 @@ const ComparePage = () => {
             >
                <div>
                   <h2 className="font-bold text-lg text-left">{pokemon?.pokemonB?.name.charAt(0).toUpperCase() + pokemon?.pokemonB?.name.slice(1) ?? ""}</h2>
-                  <div className="p-1 text-left md:flex gap-10">
+                  <div className="p-1 text-left md:flex md:text-base text-xs gap-10">
                      <p>Height: {pokemon?.pokemonB?.information?.height}</p>
                      <p>Weight: {pokemon?.pokemonB?.information?.weight}</p>
                      <p>Types: {pokemon?.pokemonB?.information?.types}</p>
@@ -151,14 +180,16 @@ const ComparePage = () => {
                            <Card data={res} key={i} onClick={() => pickPokemon(res)} />
                         ))}
                      </ListSection>
-                     {status === "loading" ? "Loading..." : ""}
+                     <div ref={containerRef} className="text-center">
+                        Loading...
+                     </div>
                   </div>
                </DialogBody>
                <DialogFooter>
                   <div className="flex justify-center">
                      {" "}
-                     <Button onClick={() => handleMore()} variant="gradient">
-                        Load More
+                     <Button onClick={handleModal} variant="gradient">
+                        Close
                      </Button>
                   </div>
                </DialogFooter>
